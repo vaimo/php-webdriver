@@ -1,5 +1,7 @@
 # php-webdriver – Selenium WebDriver bindings for PHP
 
+_(Fork of the official repo with some queued PR's merged in to provide support for newest Firefox and geckodriver)_
+
 [![Latest Stable Version](https://img.shields.io/packagist/v/facebook/webdriver.svg?style=flat-square)](https://packagist.org/packages/facebook/webdriver)
 [![Travis Build](https://img.shields.io/travis/facebook/php-webdriver/community.svg?style=flat-square)](https://travis-ci.org/facebook/php-webdriver)
 [![Sauce Test Status](https://saucelabs.com/buildstatus/php-webdriver)](https://saucelabs.com/u/php-webdriver)
