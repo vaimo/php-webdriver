@@ -1,8 +1,12 @@
 # php-webdriver – Selenium WebDriver bindings for PHP
 
-_Fork of the official repo with some queued PR's merged in to provide support for newest Firefox and geckodriver. Merges:_
+This fork does not introduce anything new other than includes some merges that have remained as PR's for the official repo for some time. Main motivation is to have a tagged release (pre-release?) of the driver that would allow developers/qa to work with latest Firefox and geckodriver.
+
+Included merges:
 
 * mpierzchalski/php-webdriver::w3c
+
+--------------------
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/facebook/webdriver.svg?style=flat-square)](https://packagist.org/packages/facebook/webdriver)
 [![Travis Build](https://img.shields.io/travis/facebook/php-webdriver/community.svg?style=flat-square)](https://travis-ci.org/facebook/php-webdriver)
