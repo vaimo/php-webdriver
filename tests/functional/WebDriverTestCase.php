@@ -18,6 +18,7 @@ namespace Facebook\WebDriver;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Exception\NoSuchWindowException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\Remote\ExecutorLogger;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\WebDriverBrowserType;
 use PHPUnit\Framework\TestCase;
@@ -59,6 +60,13 @@ class WebDriverTestCase extends TestCase
                 $chromeOptions->addArguments(['--headless', 'window-size=1024,768', '--no-sandbox']);
                 $this->desiredCapabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
             }
+            if ($browserName === WebDriverBrowserType::FIREFOX) {
+                if (getenv('GECKODRIVER')) {
+                    $this->serverUrl = 'http://localhost:4444';
+                }
+                $this->desiredCapabilities = DesiredCapabilities::firefox();
+                $this->desiredCapabilities->setCapability('moz:firefoxOptions', ['args' => ['--headless']]);
+            }
 
             $this->desiredCapabilities->setBrowserName($browserName);
         }
@@ -68,7 +76,11 @@ class WebDriverTestCase extends TestCase
                 $this->serverUrl,
                 $this->desiredCapabilities,
                 $this->connectionTimeout,
-                $this->requestTimeout
+                $this->requestTimeout,
+                null,
+                null,
+                null,
+                getenv('DEBUG_EXECUTOR') ? new ExecutorLogger() : null
             );
         }
     }

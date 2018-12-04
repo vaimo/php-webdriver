@@ -18,10 +18,10 @@ namespace Facebook\WebDriver\Remote;
 use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Interactions\Internal\WebDriverCoordinates;
 use Facebook\WebDriver\Internal\WebDriverLocatable;
+use Facebook\WebDriver\Remote\Translator\WebDriverProtocolTranslator;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverElement;
-use Facebook\WebDriver\WebDriverKeys;
 use Facebook\WebDriver\WebDriverPoint;
 use ZipArchive;
 
@@ -42,6 +42,10 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
      * @var UselessFileDetector
      */
     protected $fileDetector;
+    /**
+     * @var WebDriverProtocolTranslator
+     */
+    protected $protocolTranslator;
 
     /**
      * @param RemoteExecuteMethod $executor
@@ -52,6 +56,7 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
         $this->executor = $executor;
         $this->id = $id;
         $this->fileDetector = new UselessFileDetector();
+        $this->protocolTranslator = WebDriverTranslatorFactory::createByDialect($this->executor->getDialect());
     }
 
     /**
@@ -101,7 +106,7 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
         ];
         $raw_element = $this->executor->execute(
             DriverCommand::FIND_CHILD_ELEMENT,
-            $params
+            $this->protocolTranslator->translateParameters(DriverCommand::FIND_CHILD_ELEMENT, $params)
         );
 
         return $this->newElement($raw_element['ELEMENT']);
@@ -124,7 +129,7 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
         ];
         $raw_elements = $this->executor->execute(
             DriverCommand::FIND_CHILD_ELEMENTS,
-            $params
+            $this->protocolTranslator->translateParameters(DriverCommand::FIND_CHILD_ELEMENTS, $params)
         );
 
         $elements = [];
@@ -323,21 +328,24 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
      */
     public function sendKeys($value)
     {
+        $isW3c = $this->executor->getDialect()->isW3C();
+
         $local_file = $this->fileDetector->getLocalFile($value);
-        if ($local_file === null) {
-            $params = [
-                'value' => WebDriverKeys::encode($value),
-                ':id' => $this->id,
-            ];
-            $this->executor->execute(DriverCommand::SEND_KEYS_TO_ELEMENT, $params);
-        } else {
-            $remote_path = $this->upload($local_file);
-            $params = [
-                'value' => WebDriverKeys::encode($remote_path),
-                ':id' => $this->id,
-            ];
-            $this->executor->execute(DriverCommand::SEND_KEYS_TO_ELEMENT, $params);
+        if ($local_file !== null) {
+            if ($isW3c) {
+                $value = $local_file;
+            } else {
+                $value = $this->upload($local_file);
+            }
         }
+        $params = [
+            'value' => $value,
+            ':id' => $this->id,
+        ];
+        $this->executor->execute(
+            DriverCommand::SEND_KEYS_TO_ELEMENT,
+            $this->protocolTranslator->translateParameters(DriverCommand::SEND_KEYS_TO_ELEMENT, $params)
+        );
 
         return $this;
     }
@@ -397,6 +405,10 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
      */
     public function equals(WebDriverElement $other)
     {
+        if ($this->executor->getDialect()->isW3C()) {
+            return $this->id === $other->getID();
+        }
+
         return $this->executor->execute(DriverCommand::ELEMENT_EQUALS, [
             ':id' => $this->id,
             ':other' => $other->getID(),

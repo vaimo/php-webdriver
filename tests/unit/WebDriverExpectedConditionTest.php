@@ -20,6 +20,7 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Remote\RemoteExecuteMethod;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
+use Facebook\WebDriver\Remote\WebDriverDialect;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -35,6 +36,9 @@ class WebDriverExpectedConditionTest extends TestCase
     protected function setUp()
     {
         $this->driverMock = $this->createMock(RemoteWebDriver::class);
+        $this->driverMock
+            ->method('getDialect')
+            ->willReturn(WebDriverDialect::createJsonWireProtocol());
         $this->wait = new WebDriverWait($this->driverMock, 1, 1);
     }
 

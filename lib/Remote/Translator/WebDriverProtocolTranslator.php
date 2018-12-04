@@ -13,41 +13,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Remote;
+namespace Facebook\WebDriver\Remote\Translator;
 
-use Facebook\WebDriver\Exception\WebDriverException;
+use Facebook\WebDriver\Remote\ExecutableWebDriverCommand;
+use Facebook\WebDriver\Remote\WebDriverCommand;
 
-class RemoteExecuteMethod implements ExecuteMethod
+interface WebDriverProtocolTranslator
 {
     /**
-     * @var RemoteWebDriver
+     * @param WebDriverCommand $command
+     * @return ExecutableWebDriverCommand
      */
-    protected $driver;
+    public function translateCommand(WebDriverCommand $command);
 
     /**
-     * @param RemoteWebDriver $driver
+     * @param array $raw_element
+     * @return string
      */
-    public function __construct(RemoteWebDriver $driver)
-    {
-        $this->driver = $driver;
-    }
+    public function translateElement($raw_element);
 
     /**
      * @param string $command_name
-     * @param array $parameters
-     * @throws WebDriverException
-     * @return mixed
+     * @param array $params
+     * @return array
      */
-    public function execute($command_name, array $parameters = [])
-    {
-        return $this->driver->execute($command_name, $parameters);
-    }
+    public function translateParameters($command_name, $params);
 
     /**
-     * @return WebDriverDialect
+     * @param string $command_name
+     * @param mixed $value
+     * @return mixed
      */
-    public function getDialect()
-    {
-        return $this->driver->getDialect();
-    }
+    public function translateResponse($command_name, $value);
 }

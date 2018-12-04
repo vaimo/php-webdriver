@@ -30,7 +30,12 @@ class RemoteWebElementTest extends TestCase
      */
     public function testShouldConstructNewInstance()
     {
+        /** @var RemoteExecuteMethod | \PHPUnit_Framework_MockObject_MockObject $executeMethod */
         $executeMethod = $this->createMock(RemoteExecuteMethod::class);
+        $executeMethod
+            ->expects($this->once())
+            ->method('getDialect')
+            ->willReturn(WebDriverDialect::createW3C());
         $element = new RemoteWebElement($executeMethod, 333);
 
         $this->assertSame(333, $element->getID());

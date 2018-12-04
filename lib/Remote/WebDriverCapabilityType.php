@@ -39,7 +39,64 @@ class WebDriverCapabilityType
     const NATIVE_EVENTS = 'nativeEvents';
     const PROXY = 'proxy';
 
+    const W3C_ACCEPT_SSL_CERTS = 'acceptInsecureCerts';
+    const W3C_VERSION = 'browserVersion';
+    const W3C_PLATFORM = 'platformName';
+
+    const W3C_CAPABILITY_NAME = [
+        'acceptInsecureCerts',
+        'browserName',
+        'browserVersion',
+        'platformName',
+        'pageLoadStrategy',
+        'proxy',
+        'setWindowRect',
+        'timeouts',
+        'unhandledPromptBehavior',
+    ];
+
+    const PROTOCOLS_CONVERSION = [
+        self::PLATFORM => self::W3C_PLATFORM,
+        self::VERSION => self::W3C_VERSION,
+        self::ACCEPT_SSL_CERTS => self::W3C_ACCEPT_SSL_CERTS,
+    ];
+
     private function __construct()
     {
+    }
+
+    /**
+     * @param array $capabilities
+     * @return array
+     */
+    public static function makeW3C(array $capabilities)
+    {
+        $profile = !empty($capabilities['firefox_profile']) ? $capabilities['firefox_profile'] : null;
+        $alwaysMatch = [];
+        if (!empty($capabilities['proxy']['proxyType'])) {
+            $capabilities['proxy']['proxyType'] = mb_strtolower($capabilities['proxy']['proxyType']);
+        }
+
+        foreach ($capabilities as $k => $v) {
+            if (!empty($v) && in_array($k, self::PROTOCOLS_CONVERSION, true)) {
+                $alwaysMatch[self::PROTOCOLS_CONVERSION[$k]] = ($k === 'platform') ? mb_strtolower($v) : $v;
+            }
+            if (in_array($k, self::W3C_CAPABILITY_NAME, true) || false !== mb_strpos($k, ':')) {
+                $alwaysMatch[$k] = $v;
+            }
+        }
+
+        if ($profile) {
+            $mozOpts = !empty($alwaysMatch['moz:firefoxOptions']) ? $alwaysMatch['moz:firefoxOptions'] : [];
+            if (!array_key_exists('profile', $mozOpts)) {
+                $newMozOpts = $mozOpts;
+                $newMozOpts['profile'] = $profile;
+                $alwaysMatch['moz:firefoxOptions'] = $newMozOpts;
+            }
+        }
+
+        return [
+            'alwaysMatch' => $alwaysMatch,
+        ];
     }
 }

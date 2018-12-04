@@ -13,27 +13,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
+namespace Facebook\WebDriver\Remote;
 
-use Facebook\WebDriver\Remote\RemoteTouchScreen;
+use Facebook\WebDriver\Remote\Translator\JsonWireProtocolTranslator;
+use Facebook\WebDriver\Remote\Translator\W3CProtocolTranslator;
+use Facebook\WebDriver\Remote\Translator\WebDriverProtocolTranslator;
 
-/**
- * Interface implemented by each driver that allows access to the input devices.
- */
-interface WebDriverHasInputDevices
+class WebDriverTranslatorFactory
 {
     /**
-     * @return WebDriverMouse
+     * @param WebDriverDialect $dialect
+     * @return WebDriverProtocolTranslator
      */
-    public function getMouse();
+    public static function createByDialect(WebDriverDialect $dialect)
+    {
+        if ($dialect->isW3C()) {
+            return new W3CProtocolTranslator();
+        }
 
-    /**
-     * @return WebDriverKeyboard
-     */
-    public function getKeyboard();
-
-    /**
-     * @return RemoteTouchScreen
-     */
-    public function getTouch();
+        return new JsonWireProtocolTranslator();
+    }
 }

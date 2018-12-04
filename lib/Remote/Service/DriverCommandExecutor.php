@@ -17,8 +17,8 @@ namespace Facebook\WebDriver\Remote\Service;
 
 use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Remote\DriverCommand;
+use Facebook\WebDriver\Remote\ExecutableWebDriverCommand;
 use Facebook\WebDriver\Remote\HttpCommandExecutor;
-use Facebook\WebDriver\Remote\WebDriverCommand;
 use Facebook\WebDriver\Remote\WebDriverResponse;
 
 /**
@@ -39,13 +39,13 @@ class DriverCommandExecutor extends HttpCommandExecutor
     }
 
     /**
-     * @param WebDriverCommand $command
+     * @param ExecutableWebDriverCommand $command
      *
      * @throws WebDriverException
      * @throws \Exception
      * @return WebDriverResponse
      */
-    public function execute(WebDriverCommand $command)
+    public function execute(ExecutableWebDriverCommand $command)
     {
         if ($command->getName() === DriverCommand::NEW_SESSION) {
             $this->service->start();

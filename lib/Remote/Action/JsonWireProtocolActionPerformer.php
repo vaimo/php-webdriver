@@ -13,27 +13,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver;
+namespace Facebook\WebDriver\Remote\Action;
 
-use Facebook\WebDriver\Remote\RemoteTouchScreen;
+use Facebook\WebDriver\WebDriverAction;
 
-/**
- * Interface implemented by each driver that allows access to the input devices.
- */
-interface WebDriverHasInputDevices
+class JsonWireProtocolActionPerformer implements WebDriverActionPerformer
 {
     /**
-     * @return WebDriverMouse
+     * @param array | WebDriverAction[] $actions
      */
-    public function getMouse();
-
-    /**
-     * @return WebDriverKeyboard
-     */
-    public function getKeyboard();
-
-    /**
-     * @return RemoteTouchScreen
-     */
-    public function getTouch();
+    public function perform(array $actions)
+    {
+        foreach ($actions as $action) {
+            $action->perform();
+        }
+    }
 }

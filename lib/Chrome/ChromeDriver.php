@@ -18,9 +18,13 @@ namespace Facebook\WebDriver\Chrome;
 use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\DriverCommand;
+use Facebook\WebDriver\Remote\ExecutableWebDriverCommand;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\Service\DriverCommandExecutor;
 use Facebook\WebDriver\Remote\WebDriverCommand;
+use Facebook\WebDriver\Remote\WebDriverDialect;
+use Facebook\WebDriver\Remote\WebDriverResponseFactory;
+use Psr\Log\LoggerInterface;
 
 class ChromeDriver extends RemoteWebDriver
 {
@@ -36,12 +40,16 @@ class ChromeDriver extends RemoteWebDriver
             $service = ChromeDriverService::createDefaultService();
         }
         $executor = new DriverCommandExecutor($service);
-        $driver = new static($executor, null, $desired_capabilities);
+        $driver = new static($executor, WebDriverDialect::createJsonWireProtocol(), null, $desired_capabilities);
         $driver->startSession($desired_capabilities);
 
         return $driver;
     }
 
+    /**
+     * @param DesiredCapabilities $desired_capabilities
+     * @throws WebDriverException
+     */
     public function startSession(DesiredCapabilities $desired_capabilities)
     {
         $command = new WebDriverCommand(
@@ -51,7 +59,9 @@ class ChromeDriver extends RemoteWebDriver
                 'desiredCapabilities' => $desired_capabilities->toArray(),
             ]
         );
-        $response = $this->executor->execute($command);
+        $result = $this->executor->execute(ExecutableWebDriverCommand::getNewSessionCommand($command));
+        $response = WebDriverResponseFactory::create($result);
+
         $this->sessionID = $response->getSessionID();
     }
 
@@ -65,8 +75,8 @@ class ChromeDriver extends RemoteWebDriver
      * @param string|null $http_proxy
      * @param int|null $http_proxy_port
      * @param DesiredCapabilities $required_capabilities
+     * @param LoggerInterface|null $logger
      * @throws WebDriverException
-     * @return RemoteWebDriver
      */
     public static function create(
         $selenium_server_url = 'http://localhost:4444/wd/hub',
@@ -75,7 +85,8 @@ class ChromeDriver extends RemoteWebDriver
         $request_timeout_in_ms = null,
         $http_proxy = null,
         $http_proxy_port = null,
-        DesiredCapabilities $required_capabilities = null
+        DesiredCapabilities $required_capabilities = null,
+        LoggerInterface $logger = null
     ) {
         throw new WebDriverException('Please use ChromeDriver::start() instead.');
     }
@@ -84,6 +95,7 @@ class ChromeDriver extends RemoteWebDriver
      * Always throws an exception. Use ChromeDriver::start() instead.
      *
      * @param string $session_id The existing session id
+     * @param WebDriverDialect $dialect
      * @param string $selenium_server_url The url of the remote Selenium WebDriver server
      * @param int|null $connection_timeout_in_ms Set timeout for the connect phase to remote Selenium WebDriver server
      * @param int|null $request_timeout_in_ms Set the maximum time of a request to remote Selenium WebDriver server
@@ -92,6 +104,7 @@ class ChromeDriver extends RemoteWebDriver
      */
     public static function createBySessionID(
         $session_id,
+        WebDriverDialect $dialect,
         $selenium_server_url = 'http://localhost:4444/wd/hub',
         $connection_timeout_in_ms = null,
         $request_timeout_in_ms = null

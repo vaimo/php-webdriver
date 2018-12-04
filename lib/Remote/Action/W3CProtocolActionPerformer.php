@@ -13,41 +13,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Facebook\WebDriver\Remote;
+namespace Facebook\WebDriver\Remote\Action;
 
 use Facebook\WebDriver\Exception\WebDriverException;
+use Facebook\WebDriver\Remote\BunchActionExecuteMethod;
+use Facebook\WebDriver\WebDriverAction;
 
-class RemoteExecuteMethod implements ExecuteMethod
+class W3CProtocolActionPerformer implements WebDriverActionPerformer
 {
     /**
-     * @var RemoteWebDriver
+     * @var BunchActionExecuteMethod
      */
-    protected $driver;
+    private $executionMethod;
 
     /**
-     * @param RemoteWebDriver $driver
+     * W3CProtocolActionPerformer constructor.
+     * @param BunchActionExecuteMethod $executionMethod
      */
-    public function __construct(RemoteWebDriver $driver)
+    public function __construct(BunchActionExecuteMethod $executionMethod)
     {
-        $this->driver = $driver;
+        $this->executionMethod = $executionMethod;
     }
 
     /**
-     * @param string $command_name
-     * @param array $parameters
+     * @param array | WebDriverAction[] $actions
      * @throws WebDriverException
-     * @return mixed
      */
-    public function execute($command_name, array $parameters = [])
+    public function perform(array $actions)
     {
-        return $this->driver->execute($command_name, $parameters);
-    }
-
-    /**
-     * @return WebDriverDialect
-     */
-    public function getDialect()
-    {
-        return $this->driver->getDialect();
+        foreach ($actions as $action) {
+            $action->perform();
+        }
+        $this->executionMethod->executeAll();
     }
 }

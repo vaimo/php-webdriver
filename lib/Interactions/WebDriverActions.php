@@ -25,7 +25,7 @@ use Facebook\WebDriver\Interactions\Internal\WebDriverKeyUpAction;
 use Facebook\WebDriver\Interactions\Internal\WebDriverMouseMoveAction;
 use Facebook\WebDriver\Interactions\Internal\WebDriverMoveToOffsetAction;
 use Facebook\WebDriver\Interactions\Internal\WebDriverSendKeysAction;
-use Facebook\WebDriver\WebDriver;
+use Facebook\WebDriver\Remote\Action\WebDriverActionPerformer;
 use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverHasInputDevices;
 
@@ -34,20 +34,20 @@ use Facebook\WebDriver\WebDriverHasInputDevices;
  */
 class WebDriverActions
 {
-    protected $driver;
     protected $keyboard;
     protected $mouse;
     protected $action;
 
     /**
+     * WebDriverActions constructor.
      * @param WebDriverHasInputDevices $driver
+     * @param WebDriverActionPerformer $performer
      */
-    public function __construct(WebDriverHasInputDevices $driver)
+    public function __construct(WebDriverHasInputDevices $driver, WebDriverActionPerformer $performer)
     {
-        $this->driver = $driver;
-        $this->keyboard = $driver->getKeyboard();
         $this->mouse = $driver->getMouse();
-        $this->action = new WebDriverCompositeAction();
+        $this->keyboard = $driver->getKeyboard();
+        $this->action = new WebDriverCompositeAction($performer);
     }
 
     /**
