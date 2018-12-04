@@ -4,7 +4,7 @@ This fork does not introduce anything new other than includes some merges that h
 
 Included merges:
 
-* mpierzchalski/php-webdriver::w3c
+* [mpierzchalski/php-webdriver::w3c](https://github.com/facebook/php-webdriver/pull/599/commits)
 
 --------------------
 
