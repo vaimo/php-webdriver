@@ -1,6 +1,6 @@
 {
-  "name": "facebook/webdriver",
-  "description": "A PHP client for Selenium WebDriver",
+  "name": "vaimo/webdriver",
+  "description": "A PHP client for Selenium WebDriver (Vaimo fork: support for latest Firefox)",
   "keywords": ["webdriver", "selenium", "php", "facebook"],
   "homepage": "https://github.com/facebook/php-webdriver",
   "type": "library",
